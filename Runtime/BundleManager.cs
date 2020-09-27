@@ -39,6 +39,9 @@ namespace BundleSystem
                 Dependencies.Add(Name);
             }
         }
+        
+        // Define FileName
+        private const string CACHED_MANIFEST_FILE_NAME = "manifest.json";
 
         //Asset bundles that is loaded keep it static so we can easily call this in static method
         static Dictionary<string, LoadedBundle> s_AssetBundles = new Dictionary<string, LoadedBundle>();
@@ -133,7 +136,13 @@ namespace BundleSystem
             }
 
             //cached version is recent one.
-            var cacheIsValid = AssetbundleBuildManifest.TryParse(PlayerPrefs.GetString("CachedManifest", string.Empty), out var cachedManifest) 
+            var path = Path.Combine(Application.persistentDataPath, CACHED_MANIFEST_FILE_NAME);
+            var cachedManifestJson = string.Empty;
+            if (File.Exists(path))
+            {
+                cachedManifestJson = File.ReadAllText(path);
+            }
+            var cacheIsValid = AssetbundleBuildManifest.TryParse(PlayerPrefs.GetString(cachedManifestJson, string.Empty), out var cachedManifest) 
                 && cachedManifest.BuildTime > localManifest.BuildTime;
 
             result.SetIndexLength(localManifest.BundleInfos.Count);
@@ -195,7 +204,13 @@ namespace BundleSystem
         /// <returns></returns>
         public static bool TryGetCachedManifest(out AssetbundleBuildManifest manifest)
         {
-            return AssetbundleBuildManifest.TryParse(PlayerPrefs.GetString("CachedManifest", string.Empty), out manifest);
+            var path = Path.Combine(Application.persistentDataPath, CACHED_MANIFEST_FILE_NAME);
+            var cachedManifestJson = string.Empty;
+            if (File.Exists(path))
+            {
+                cachedManifestJson = File.ReadAllText(path);
+            }
+            return AssetbundleBuildManifest.TryParse(cachedManifestJson, out manifest);
         }
 
         public static BundleAsyncOperation<AssetbundleBuildManifest> GetManifest()
@@ -380,7 +395,9 @@ namespace BundleSystem
             Caching.ClearCache(600); //as we bumped entire list right before clear, let it be just 600
             if (LogMessages) Debug.Log($"CacheUsed After CleanUp : {Caching.defaultCache.spaceOccupied} bytes");
 
-            PlayerPrefs.SetString("CachedManifest", JsonUtility.ToJson(manifest));
+            // PlayerPrefs to PersistentDataPath
+            File.WriteAllText(Path.Combine(Application.persistentDataPath,CACHED_MANIFEST_FILE_NAME), JsonUtility.ToJson(manifest));
+            
             GlobalBundleHash = manifest.GlobalHash.ToString();
             result.Result = bundleReplaced;
             result.Done(BundleErrorCode.Success);
