@@ -7,6 +7,7 @@ using UnityEditor.Build.Pipeline.Interfaces;
 using UnityEditor.Build.Pipeline.WriteTypes;
 using UnityEngine;
 using System;
+using AssetBundleConst;
 
 namespace BundleSystem
 {
@@ -69,6 +70,14 @@ namespace BundleSystem
             {
                 EditorUtility.DisplayDialog("Succeeded!", $"Check {LogExpectedSharedBundleFileName} in your project root directory!", "Confirm");
             }
+        }
+
+        public static void WriteConstStringBundles(AssetbundleBuildSettings settings)
+        {
+            var bundleList = GetAssetBundlesList(settings);
+            var writeFile = AssetBundleConstBuilder.CreateConstString(bundleList);
+            var writePath = Path.Combine(settings.ConstStringFilePath,settings.ConstStringFileName).Replace('\\','/');
+            File.WriteAllText(writePath, writeFile);
         }
 
         public static List<AssetBundleBuild> GetAssetBundlesList(AssetbundleBuildSettings settings)

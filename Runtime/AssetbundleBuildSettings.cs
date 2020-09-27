@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -59,6 +60,9 @@ namespace BundleSystem
         public string LocalOutputPath => Application.dataPath.Remove(Application.dataPath.Length - 6) + m_LocalOutputFolder;
         public string RemoteOutputPath => Application.dataPath.Remove(Application.dataPath.Length - 6) + m_RemoteOutputFolder;
 
+        public string ConstStringFilePath => Path.Combine(System.IO.Path.GetFullPath("Assets/"),m_ConstStringFilePath);
+        public string ConstStringFileName => m_ConstStringFileName;
+
         public List<BundleSetting> BundleSettings = new List<BundleSetting>();
 
         [Tooltip("Auto create shared bundles to remove duplicated assets")]
@@ -79,6 +83,17 @@ namespace BundleSystem
 
         [Tooltip("Remote URL for downloading remote bundles")]
         public string RemoteURL = "http://localhost/";
+
+        /// <summary>
+        /// Generate Const String File
+        /// </summary>
+        [SerializeField]
+        [Tooltip("Generate Const String Path")]
+        string m_ConstStringFilePath = "";
+
+        [SerializeField]
+        [Tooltip("Generate Const String File Name")]
+        string m_ConstStringFileName = "AssetBundleConst.cs";
 
         [Tooltip("Use built asset bundles even in editor")]
         public bool EmulateInEditor = false;

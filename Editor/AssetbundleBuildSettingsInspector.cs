@@ -19,6 +19,8 @@ namespace BundleSystem
         SerializedProperty m_EmulateUseRemoteFolder;
         SerializedProperty m_CleanCache;
         SerializedProperty m_RemoteURL;
+        SerializedProperty m_ConstStringPath;
+        SerializedProperty m_ConstStringName;
         ReorderableList list;
 
         SerializedProperty m_ForceRebuld;
@@ -49,6 +51,9 @@ namespace BundleSystem
             m_CleanCache = serializedObject.FindProperty("CleanCacheInEditor");
             m_RemoteURL = serializedObject.FindProperty("RemoteURL");
 
+            m_ConstStringPath = serializedObject.FindProperty("m_ConstStringFilePath");
+            m_ConstStringName = serializedObject.FindProperty("m_ConstStringFileName");
+            
             m_ForceRebuld = serializedObject.FindProperty("ForceRebuild");
             m_UseCacheServer = serializedObject.FindProperty("UseCacheServer");
             m_CacheServerHost = serializedObject.FindProperty("CacheServerHost");
@@ -107,17 +112,26 @@ namespace BundleSystem
 
             GUILayout.BeginHorizontal();
             EditorGUILayout.PropertyField(m_RemoteOutputPath);
-            if (GUILayout.Button("Open", GUILayout.ExpandWidth(false))) EditorUtility.RevealInFinder(Path.Combine(settings.RemoteOutputPath, EditorUserBuildSettings.activeBuildTarget.ToString()));
+            if (GUILayout.Button("Open", GUILayout.ExpandWidth(false))) OpenFolder(Path.Combine(settings.RemoteOutputPath, EditorUserBuildSettings.activeBuildTarget.ToString()));
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
             EditorGUILayout.PropertyField(m_LocalOutputPath);
-            if (GUILayout.Button("Open", GUILayout.ExpandWidth(false))) EditorUtility.RevealInFinder(Path.Combine(settings.LocalOutputPath, EditorUserBuildSettings.activeBuildTarget.ToString()));
+            if (GUILayout.Button("Open", GUILayout.ExpandWidth(false))) OpenFolder(Path.Combine(settings.LocalOutputPath, EditorUserBuildSettings.activeBuildTarget.ToString()));
             GUILayout.EndHorizontal();
             EditorGUILayout.PropertyField(m_RemoteURL);
             EditorGUILayout.Space();
+            GUILayout.BeginHorizontal();
+            EditorGUILayout.PropertyField(m_ConstStringPath);
+            if (GUILayout.Button("Open", GUILayout.ExpandWidth(false))) OpenFolder(settings.ConstStringFilePath);
+            GUILayout.EndHorizontal();
+            EditorGUILayout.PropertyField(m_ConstStringName);
+            EditorGUILayout.Space();
             EditorGUILayout.PropertyField(m_EmulateBundle);
             EditorGUILayout.PropertyField(m_EmulateUseRemoteFolder);
+            GUILayout.BeginHorizontal();
             EditorGUILayout.PropertyField(m_CleanCache);
+            if (GUILayout.Button("Open", GUILayout.ExpandWidth(false))) OpenFolder(Caching.defaultCache.path);
+            GUILayout.EndHorizontal();
             EditorGUILayout.PropertyField(m_ForceRebuld);
             EditorGUILayout.Space();
 
@@ -165,6 +179,15 @@ namespace BundleSystem
                 }
                 EditorGUI.EndDisabledGroup();
                 EditorGUILayout.EndHorizontal();
+                
+                
+                EditorGUILayout.BeginHorizontal();
+                if (allowBuild && GUILayout.Button("Generate Const String Source"))
+                {
+                    AssetbundleBuilder.WriteConstStringBundles(settings);
+                    GUIUtility.ExitGUI();
+                }
+                EditorGUILayout.EndHorizontal();
             }
             else
             {
@@ -173,7 +196,11 @@ namespace BundleSystem
                     AssetbundleBuildSettings.EditorInstance = settings;
                 }
             }
+        }
 
+        public static void OpenFolder(string path)
+        {
+            System.Diagnostics.Process.Start(path); // EditorUtility.RevealInFinder is Windows System Open ParentFolder...
         }
     }
 
