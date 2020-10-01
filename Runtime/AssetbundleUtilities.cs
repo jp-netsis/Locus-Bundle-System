@@ -34,12 +34,12 @@ namespace BundleSystem
                 if (!IsAssetCanBundled(unityPath)) continue;
 
                 resultAssetPath.Add(unityPath);
-                var loadName = Path.GetFileName(unityPath);
-                if (Path.GetExtension(loadName)==".unity") // SceneManager.LoadScene doesn't load if there is .unity
+                var loadName = Path.Combine(dirPrefix, Path.GetFileName(unityPath)).Replace('\\', '/');
+                if (Path.GetExtension(loadName)==".unity") // SceneManager.LoadScene doesn't load path and extension.
                 {
                     loadName = Path.GetFileNameWithoutExtension(loadName);
                 }
-                resultLoadPath.Add(Path.Combine(dirPrefix, loadName).Replace('\\', '/'));
+                resultLoadPath.Add(loadName);
             }
 
             if (includeSubdir)
