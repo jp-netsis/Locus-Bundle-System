@@ -34,7 +34,7 @@ namespace AssetBundleConst
 
         static string ChangeToKeyString(string keyValue)
         {
-            return keyValue.Replace('/','.').Replace('.','_').ToUpper();
+            return keyValue.Replace(' ','.').Replace('/','.').Replace('.','_').ToUpper();
         }
         public static string CreateConstString(List<AssetBundleBuild> bundleList)
         {
